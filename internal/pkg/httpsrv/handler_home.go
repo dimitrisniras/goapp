@@ -6,6 +6,15 @@ import (
 )
 
 func (s *Server) handlerHome(w http.ResponseWriter, r *http.Request) {
+	csrfToken, err := GenerateCSRFToken()
+	if err != nil {
+		http.Error(w, "Could not generate CSRF token", http.StatusInternalServerError)
+		return
+	}
+
+	// Set the CSRF token as a cookie
+	SetCSRFCookie(w, csrfToken)
+
 	template.Must(template.New("").Parse(`
 <!DOCTYPE html>
 <html>
