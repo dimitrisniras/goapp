@@ -30,6 +30,5 @@ func (s *Server) notifyWatchers(str string) {
 	// Send message to all watchers and increment stats.
 	for id := range s.watchers {
 		s.watchers[id].Send(str)
-		s.incStats(id)
 	}
 }

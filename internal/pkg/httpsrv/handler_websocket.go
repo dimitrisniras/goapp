@@ -66,6 +66,7 @@ func (s *Server) handlerWebSocket(w http.ResponseWriter, r *http.Request) {
 					log.Printf("failed to unmarshal message: %v\n", err)
 					continue
 				}
+				s.incStats(watch.GetWatcherId()) // increment the stats every time we receive a new read request
 				watch.ResetCounter()
 			case <-doneCh:
 				return
