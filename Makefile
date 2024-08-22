@@ -12,3 +12,9 @@ goapp:
 clean:
 	go clean
 	rm -f bin/*
+
+test:
+	go test -v ./...
+
+test-bench:
+	go test ./... -bench=.
