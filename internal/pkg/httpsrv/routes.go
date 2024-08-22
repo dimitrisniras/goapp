@@ -26,13 +26,13 @@ func (s *Server) myRoutes() []Route {
 			Name:    "websocket",
 			Method:  "GET",
 			Pattern: "/goapp/ws",
-			HFunc:   s.handlerWrapper(s.handlerWebSocket),
+			HFunc:   CSRFMiddleware(s.handlerWrapper(s.handlerWebSocket)),
 		},
 		{
 			Name:    "home",
 			Method:  "GET",
 			Pattern: "/goapp",
-			HFunc:   s.handlerWrapper(s.handlerHome),
+			HFunc:   CSRFMiddleware(s.handlerWrapper(s.handlerHome)),
 		},
 	}
 }
