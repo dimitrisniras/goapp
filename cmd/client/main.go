@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
 	_ "net/http/pprof"
@@ -26,8 +27,12 @@ func main() {
 	exitChannel := make(chan os.Signal, 1)
 	signal.Notify(exitChannel, syscall.SIGINT, syscall.SIGTERM)
 
+	// Parse the number of parallel websocket connections
+	numOfConnections := flag.Int("n", 1, "Number of parallel WebSocket connections")
+	flag.Parse()
+
 	// Start.
-	if err := goapp.Start(exitChannel, false, 1); err != nil {
+	if err := goapp.Start(exitChannel, true, *numOfConnections); err != nil {
 		log.Fatalf("fatal: %+v\n", err)
 	}
 }
