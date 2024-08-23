@@ -15,16 +15,18 @@ import (
 )
 
 type Server struct {
-	strChan      <-chan string               // String channel.
-	server       *http.Server                // Gorilla HTTP server.
-	watchers     map[string]*watcher.Watcher // Counter watchers (k: counterId).
-	watchersLock *sync.RWMutex               // Counter lock.
-	sessionStats []sessionStats              // Session stats.
-	quitChannel  chan struct{}               // Quit channel.
-	running      sync.WaitGroup              // Running goroutines.
+	strChan                 <-chan string               // String channel.
+	server                  *http.Server                // Gorilla HTTP server.
+	watchers                map[string]*watcher.Watcher // Counter watchers (k: counterId).
+	watchersLock            *sync.RWMutex               // Counter lock.
+	sessionStats            []sessionStats              // Session stats.
+	quitChannel             chan struct{}               // Quit channel.
+	running                 sync.WaitGroup              // Running goroutines.
+	concurrentWSConnections bool                        // Session Concurrency.
+	numOfConnections        int                         // Number of Websocket sessions.
 }
 
-func New(strChan <-chan string) *Server {
+func New(strChan <-chan string, concurrentWSConnections bool, numOfConnections int) *Server {
 	s := Server{}
 	s.strChan = strChan
 	s.server = nil // Set below.
@@ -33,6 +35,8 @@ func New(strChan <-chan string) *Server {
 	s.sessionStats = []sessionStats{}
 	s.quitChannel = make(chan struct{})
 	s.running = sync.WaitGroup{}
+	s.concurrentWSConnections = concurrentWSConnections
+	s.numOfConnections = numOfConnections
 	return &s
 }
 

@@ -15,6 +15,12 @@ func (s *Server) handlerHome(w http.ResponseWriter, r *http.Request) {
 	// Set the CSRF token as a cookie
 	SetCSRFCookie(w, csrfToken)
 
+	varmap := map[string]interface{}{
+		"host":                  "ws://" + r.Host + "/goapp/ws",
+		"numOfConnections":      s.numOfConnections,
+		"concurrentConnections": s.concurrentWSConnections,
+	}
+
 	template.Must(template.New("").Parse(`
 <!DOCTYPE html>
 <html>
@@ -24,46 +30,57 @@ func (s *Server) handlerHome(w http.ResponseWriter, r *http.Request) {
 window.addEventListener("load", function(evt) {
     var output = document.getElementById("output");
     var input = document.getElementById("input");
-    var ws;
-    var print = function(message) {
+    var ws = [];
+    var numConnections = Number("{{.numOfConnections}}");
+    var concurrentConnections = "{{.concurrentConnections}}";
+    var print = function(message, i) {
+        let prefix = "";
+        if (concurrentConnections === "true" && numConnections > 1) {
+            prefix = "[conn #" + i + "] ";
+        }
         var d = document.createElement("div");
-        d.textContent = message;
+        d.textContent = prefix + message;
         output.appendChild(d);
         output.scroll(0, output.scrollHeight);
     };
     document.getElementById("open").onclick = function(evt) {
-        if (ws) {
+        if (ws.length !== 0) {
             return false;
         }
-        ws = new WebSocket("{{.}}");
-        ws.onopen = function(evt) {
-            print("OPEN");
-        }
-        ws.onclose = function(evt) {
-            print("CLOSE");
-            ws = null;
-        }
-        ws.onmessage = function(evt) {
-            print("RESPONSE: " + evt.data);
-        }
-        ws.onerror = function(evt) {
-            print("ERROR: " + evt.data);
+        for (let i = 0; i < numConnections; i++) {
+            let newWs = new WebSocket("{{.host}}");
+            ws.push(newWs);
+            newWs.onopen = function(evt) {
+                print("OPEN", i);
+            }
+            newWs.onclose = function(evt) {
+                print("CLOSE", i);
+            }
+            newWs.onmessage = function(evt) {
+                print("RESPONSE: " + evt.data, i);
+            }
+            newWs.onerror = function(evt) {
+                print("ERROR: " + evt.data, i);
+            }
         }
         return false;
     };
     document.getElementById("send").onclick = function(evt) {
-        if (!ws) {
+        if (ws.length === 0) {
             return false;
         }
-        print("SEND: " + input.value);
-        ws.send(input.value);
+        for (let i = 0; i < numConnections; i++) {
+            print("SEND: " + input.value, i);
+            ws[i].send(input.value);
+        }
         return false;
     };
     document.getElementById("close").onclick = function(evt) {
-        if (!ws) {
+        if (ws.length === 0) {
             return false;
         }
-        ws.close();
+        ws.forEach((websocket) => websocket.close());
+        ws = [];
         return false;
     };
 });
@@ -87,5 +104,5 @@ You can change the message and send multiple times.
 </td></tr></table>
 </body>
 </html>
-`)).Execute(w, "ws://"+r.Host+"/goapp/ws")
+`)).Execute(w, varmap)
 }
