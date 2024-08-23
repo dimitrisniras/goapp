@@ -31,6 +31,11 @@ func main() {
 	numOfConnections := flag.Int("n", 1, "Number of parallel WebSocket connections")
 	flag.Parse()
 
+	if *numOfConnections <= 0 {
+		log.Fatal("Number of connections must be higher than 0")
+		<-exitChannel
+	}
+
 	// Start.
 	if err := goapp.Start(exitChannel, true, *numOfConnections); err != nil {
 		log.Fatalf("fatal: %+v\n", err)
