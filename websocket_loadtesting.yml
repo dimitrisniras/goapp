@@ -11,4 +11,4 @@ scenarios:
         - send:
           x: 0
           y: 0
-        count: 100
+        count: 5
