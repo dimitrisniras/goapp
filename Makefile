@@ -12,6 +12,11 @@ goapp:
 run: all
 	./bin/server
 
+.PHONY: run-concurrent
+run-concurrent: all
+	@$(eval connections ?= 1)
+	./bin/client -n $(connections)
+
 .PHONY: clean
 clean:
 	go clean

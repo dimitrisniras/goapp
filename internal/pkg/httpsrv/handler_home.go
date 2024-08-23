@@ -55,7 +55,6 @@ window.addEventListener("load", function(evt) {
             }
             newWs.onclose = function(evt) {
                 print("CLOSE", i);
-                ws.splice(i, 1);
             }
             newWs.onmessage = function(evt) {
                 print("RESPONSE: " + evt.data, i);
@@ -80,9 +79,8 @@ window.addEventListener("load", function(evt) {
         if (ws.length === 0) {
             return false;
         }
-        for (let i = 0; i < numConnections; i++) {
-            ws[i].close();
-        }
+        ws.forEach((websocket) => websocket.close());
+        ws = [];
         return false;
     };
 });
