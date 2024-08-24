@@ -22,8 +22,18 @@ clean:
 	go clean
 	rm -f bin/*
 
+.PHONY: test
 test:
 	go test -v ./...
 
+.PHONY: test-bench
 test-bench:
 	go test ./... -bench=.
+
+.PHONY: install-loadtesting-deps
+install-loadtesting-deps:
+	npm i -g artillery
+
+.PHONY: run-loadtesting
+run-loadtesting:
+	artillery run websocket_loadtesting.yml

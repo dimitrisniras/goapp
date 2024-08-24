@@ -1,0 +1,14 @@
+config:
+  target: "ws://localhost:8080/goapp/ws"
+  phases:
+    - duration: 120
+      arrivalRate: 20
+
+scenarios:
+  - engine: ws
+    flow:
+      - loop:
+        - send:
+          x: 0
+          y: 0
+        count: 5
