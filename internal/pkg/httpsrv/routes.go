@@ -32,7 +32,7 @@ func (s *Server) myRoutes() []Route {
 			Name:    "home",
 			Method:  "GET",
 			Pattern: "/goapp",
-			HFunc:   CSRFMiddleware(s.handlerWrapper(s.handlerHome)),
+			HFunc:   s.handlerWrapper(s.handlerHome),
 		},
 	}
 }
