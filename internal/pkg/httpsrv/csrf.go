@@ -19,11 +19,12 @@ func GenerateCSRFToken() (string, error) {
 // CSRFMiddleware validates CSRF tokens for state-changing requests
 func CSRFMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodPost || r.Method == http.MethodPut || r.Method == http.MethodDelete {
-			csrfToken := r.Header.Get("X-CSRF-Token")
+		if r.Method == http.MethodGet || r.Method == http.MethodPost || r.Method == http.MethodPut || r.Method == http.MethodDelete {
+			csrfToken := r.URL.Query().Get("csrf_token")
 			cookie, err := r.Cookie("csrf_token")
-			if err != nil || csrfToken != cookie.Value {
-				http.Error(w, "Invalid CSRF token", http.StatusForbidden)
+
+			if err != nil || csrfToken == "" || csrfToken != cookie.Value {
+				http.Error(w, "Unathorized request", http.StatusUnauthorized)
 				return
 			}
 		}

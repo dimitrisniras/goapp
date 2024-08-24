@@ -16,7 +16,7 @@ func (s *Server) handlerHome(w http.ResponseWriter, r *http.Request) {
 	SetCSRFCookie(w, csrfToken)
 
 	varmap := map[string]interface{}{
-		"host":                  "ws://" + r.Host + "/goapp/ws",
+		"host":                  "ws://" + r.Host + "/goapp/ws?csrf_token=" + csrfToken,
 		"numOfConnections":      s.numOfConnections,
 		"concurrentConnections": s.concurrentWSConnections,
 	}
